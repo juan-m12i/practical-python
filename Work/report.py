@@ -3,7 +3,7 @@
 # Exercise 2.4
 
 import sys
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Sequence
 import csv
 from pprint import pprint
 
@@ -29,7 +29,7 @@ def get_position_from_line(line: str) -> Position:
         return Position(row[0], 0, 0)
 
 
-def read_portfolio(filename: str) -> List[Holding]:
+def read_portfolio_tuple(filename: str) -> List[Holding]:
     portfolio: List[Holding] = []
     with open(filename, 'rt') as f:
         rows = csv.reader(f)
@@ -44,8 +44,12 @@ def read_portfolio_dict(filename: str) -> List[Holding_2]:
     with open(filename, 'rt') as f:
         rows = csv.reader(f)
         headers = next(rows)
-        for row in rows:
-            holding: Holding = {"name":row[0], "shares": int(row[1]), "price": float(row[2])}
+        #for row in rows:
+        #    holding: Holding = {"name":row[0], "shares": int(row[1]), "price": float(row[2])}
+        #    portfolio.append(holding)
+
+        for rowno, row in enumerate(rows, start=1):
+            holding = dict(zip(headers, row))
             portfolio.append(holding)
     return portfolio
 
@@ -70,13 +74,14 @@ def read_prices(filename: str) -> dict:
                 print("wrong line")
     return prices
 
-def compute_value(portfolio: list, prices: dict) -> float:
+def compute_value(portfolio: List[Holding_2], prices: dict) -> float:
     current_value = 0
     for holding in portfolio:
         try:
-            current_value += holding[1] * prices[holding[0]]
+            pprint(holding)
+            current_value += int(holding["shares"]) * prices[holding["name"]]
         except Exception as e:
-            print("Missing price for stock %s" % holding[0])
+            print("Missing price for stock %s" % holding["name"])
 
     return current_value
 
@@ -85,14 +90,16 @@ def make_report(portfolio, prices) -> List[tuple]:
     report: List[tuple] = []
     for holding in portfolio:
         try:
-            current_price: float = prices[holding[0]]
-            original_price: float = holding[2]
+            current_price: float = prices[holding["name"]]
+            original_price: float = float(holding["price"])
             price_change: float = (current_price - original_price)
             # p_l: float = holding[1] * (current_price - original_price)
-            report.append((holding[0], holding[1], current_price, price_change))
+            report.append((holding["name"], int(holding["shares"]), current_price, price_change))
         except Exception as e:
-            print("Missing price for stock %s" % holding[0])
+            print(e)
+            print("Missing price for stock %s" % holding["name"])
     return report
+
 
 def print_report(report: List[tuple]):
     """
@@ -117,8 +124,8 @@ else:
 #print('Total cost:', cost)
 prices = read_prices("Data/prices.csv")
 pprint(prices)
-portfolio: List[Holding] = read_portfolio(filename)
-pprint(portfolio)
+portfolio: List[Holding_2] = read_portfolio_dict(filename)
+# pprint(portfolio)
 portfolio_value = compute_value(portfolio, prices)
 print(portfolio_value)
 report = make_report(portfolio, prices)

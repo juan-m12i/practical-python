@@ -7,49 +7,18 @@ from typing import List, Tuple, Dict, Any, Sequence
 import csv
 from pprint import pprint
 
-Holding = Tuple[str, int, float]
-Holding_2 = Dict[str, Any]
-
-class Position:
-    def __init__(self, ticker_name: str, number_of_stocks: int, price_per_stock: float):
-        self.ticker_name: str = ticker_name
-        self.number_of_stocks: int = number_of_stocks
-        self.price_per_stock: float = price_per_stock
-
-    def total_price(self) -> float:
-        return self.number_of_stocks * self.price_per_stock
+Holding_2 = Tuple[str, int, float]
+Holding = Dict[str, Any]
 
 
-def get_position_from_line(line: str) -> Position:
-    row = line.rstrip().split(',')
-    try:
-        return Position(row[0], int(row[1]), float(row[2]))
-    except ValueError:
-        print("Warning with input: %s" % line, end="")
-        return Position(row[0], 0, 0)
 
-
-def read_portfolio_tuple(filename: str) -> List[Holding]:
+def read_portfolio_dict(filename: str) -> List[Holding]:
     portfolio: List[Holding] = []
     with open(filename, 'rt') as f:
         rows = csv.reader(f)
         headers = next(rows)
-        for row in rows:
-            holding: Holding = (row[0], int(row[1]), float(row[2]))
-            portfolio.append(holding)
-    return portfolio
-
-def read_portfolio_dict(filename: str) -> List[Holding_2]:
-    portfolio: List[Holding] = []
-    with open(filename, 'rt') as f:
-        rows = csv.reader(f)
-        headers = next(rows)
-        #for row in rows:
-        #    holding: Holding = {"name":row[0], "shares": int(row[1]), "price": float(row[2])}
-        #    portfolio.append(holding)
-
         for rowno, row in enumerate(rows, start=1):
-            holding = dict(zip(headers, row))
+            holding: Holding = dict(zip(headers, row))
             portfolio.append(holding)
     return portfolio
 
@@ -120,8 +89,7 @@ if len(sys.argv) == 2:
 else:
     filename = 'Data/portfolio.csv'
 
-#cost = portfolio_cost(filename)
-#print('Total cost:', cost)
+
 prices = read_prices("Data/prices.csv")
 pprint(prices)
 portfolio: List[Holding_2] = read_portfolio_dict(filename)
@@ -130,3 +98,49 @@ portfolio_value = compute_value(portfolio, prices)
 print(portfolio_value)
 report = make_report(portfolio, prices)
 print_report(report)
+
+
+
+
+
+
+
+"""
+
+
+
+class Position:
+    def __init__(self, ticker_name: str, number_of_stocks: int, price_per_stock: float):
+        self.ticker_name: str = ticker_name
+        self.number_of_stocks: int = number_of_stocks
+        self.price_per_stock: float = price_per_stock
+
+    def total_price(self) -> float:
+        return self.number_of_stocks * self.price_per_stock
+
+
+
+def get_position_from_line(line: str) -> Position:
+    row = line.rstrip().split(',')
+    try:
+        return Position(row[0], int(row[1]), float(row[2]))
+    except ValueError:
+        print("Warning with input: %s" % line, end="")
+        return Position(row[0], 0, 0)
+
+
+def read_portfolio_tuple(filename: str) -> List[Holding_2]:
+    portfolio: List[Holding_2] = []
+    with open(filename, 'rt') as f:
+        rows = csv.reader(f)
+        headers = next(rows)
+        for row in rows:
+            holding: Holding_2 = (row[0], int(row[1]), float(row[2]))
+            portfolio.append(holding)
+    return portfolio
+
+
+#cost = portfolio_cost(filename)
+#print('Total cost:', cost)
+
+"""

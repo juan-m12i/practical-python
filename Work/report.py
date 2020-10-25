@@ -23,13 +23,7 @@ def read_portfolio_dict(filename: str) -> List[Holding]:
     return portfolio
 
 
-def portfolio_cost(filename: str) -> float:
-    with open(filename, 'rt') as f:
-        rows = csv.reader(f)
-        headers = next(f)
-        positions: List[Position] = [get_position_from_line(x) for x in f]
-        prices: List[float] = [x.total_price() for x in positions]
-        return sum(prices)
+
 
 def read_prices(filename: str) -> dict:
     prices: dict = {}
@@ -47,7 +41,6 @@ def compute_value(portfolio: List[Holding_2], prices: dict) -> float:
     current_value = 0
     for holding in portfolio:
         try:
-            pprint(holding)
             current_value += int(holding["shares"]) * prices[holding["name"]]
         except Exception as e:
             print("Missing price for stock %s" % holding["name"])
@@ -62,12 +55,15 @@ def make_report(portfolio, prices) -> List[tuple]:
             current_price: float = prices[holding["name"]]
             original_price: float = float(holding["price"])
             price_change: float = (current_price - original_price)
-            # p_l: float = holding[1] * (current_price - original_price)
             report.append((holding["name"], int(holding["shares"]), current_price, price_change))
         except Exception as e:
-            print(e)
             print("Missing price for stock %s" % holding["name"])
     return report
+
+
+def portfolio_cost(portfolio: List[Holding]) -> float:
+    holding_costs = [int(holding["shares"]) * float(holding["price"]) for holding in portfolio]
+    return sum(holding_costs)
 
 
 def print_report(report: List[tuple]):
@@ -88,14 +84,19 @@ if len(sys.argv) == 2:
     filename = sys.argv[1]
 else:
     filename = 'Data/portfolio.csv'
+    filename = 'Data/portfoliodate.csv'
 
 
 prices = read_prices("Data/prices.csv")
-pprint(prices)
-portfolio: List[Holding_2] = read_portfolio_dict(filename)
+# pprint(prices)
+portfolio: List[Holding] = read_portfolio_dict(filename)
+
+cost = portfolio_cost(portfolio)
+print('Total cost:', cost)
+
 # pprint(portfolio)
 portfolio_value = compute_value(portfolio, prices)
-print(portfolio_value)
+print('Portfolio value:', portfolio_value)
 report = make_report(portfolio, prices)
 print_report(report)
 
@@ -117,6 +118,15 @@ class Position:
 
     def total_price(self) -> float:
         return self.number_of_stocks * self.price_per_stock
+
+
+def portfolio_cost(filename: str) -> float:
+    with open(filename, 'rt') as f:
+        rows = csv.reader(f)
+        headers = next(f)
+        positions: List[Position] = [get_position_from_line(x) for x in f]
+        prices: List[float] = [x.total_price() for x in positions]
+        return sum(prices)
 
 
 

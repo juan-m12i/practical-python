@@ -1,7 +1,11 @@
 # fileparse.py
 import csv
+from typing import List, Union
 
-def parse_csv(filename, select=None, types=None, has_headers=True, delimiter=',', silence_errors=False):
+DictTuple = Union[List, tuple]
+
+
+def parse_csv(filename, select=None, types=None, has_headers=True, delimiter=',', silence_errors=False) -> List[DictTuple]:
     '''
     Parse a CSV file into a list of records with type conversion.
     '''
@@ -26,7 +30,7 @@ def parse_csv(filename, select=None, types=None, has_headers=True, delimiter=','
 
             # If specific column indices are selected, pick them out
             if select:
-                row = [ row[index] for index in indices]
+                row = [row[index] for index in indices]
 
             # Apply type conversion to the row
             if types:

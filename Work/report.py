@@ -1,34 +1,43 @@
 # report.py
 
 import fileparse
+import stock
+from stock import Stock
+from typing import List
 
-def read_portfolio(filename):
+
+def read_portfolio(filename) -> List[Stock]:
     '''
     Read a stock portfolio file into a list of dictionaries with keys
     name, shares, and price.
     '''
     with open(filename) as lines:
-        return fileparse.parse_csv(lines, select=['name','shares','price'], types=[str,int,float])
+        portdicts: list = fileparse.parse_csv(lines, select=['name', 'shares', 'price'], types=[str, int, float])
+        return [stock.Stock(d['name'], d['shares'], d['price']) for d in portdicts]
+
 
 def read_prices(filename):
     '''
     Read a CSV file of price data into a dict mapping names to prices.
     '''
     with open(filename) as lines:
-        return dict(fileparse.parse_csv(lines, types=[str,float], has_headers=False))
+        return dict(fileparse.parse_csv(lines, types=[str,
+                                                      float], has_headers=False))
 
-def make_report_data(portfolio,prices):
+
+def make_report_data(portfolio: List[Stock], prices):
     '''
     Make a list of (name, shares, price, change) tuples given a portfolio list
     and prices dictionary.
     '''
     rows = []
     for stock in portfolio:
-        current_price = prices[stock['name']]
-        change = current_price - stock['price']
-        summary = (stock['name'], stock['shares'], current_price, change)
+        current_price = prices[stock.name]
+        change = current_price - stock.price
+        summary = (stock.name, stock.shares, current_price, change)
         rows.append(summary)
     return rows
+
 
 def print_report(reportdata):
     '''

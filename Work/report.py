@@ -12,15 +12,16 @@ def read_portfolio(filename: str) -> List[tuple]:
     name, shares, and price.
     """
 
-    return fileparse.parse_csv(filename, select=['name', 'shares', 'price'], types=[str, int, float])
+    with open(filename) as file:
+        return fileparse.parse_csv(file, select=['name', 'shares', 'price'], types=[str, int, float])
 
 
 def read_prices(filename: str) -> dict:
     """
     Read a CSV file of price data into a dict mapping names to prices.
     """
-    prices: List[tuple] = fileparse.parse_csv(filename, types=[str, float], has_headers=False)
-    return {x[0]: x[1] for x in prices}
+    with open(filename) as file:
+        return dict(fileparse.parse_csv(filename, types=[str, float], has_headers=False))
 
 
 def make_report_data(portfolio: List[DictTuple], prices: dict) -> List[tuple]:
@@ -63,5 +64,11 @@ def portfolio_report(portfoliofile: str, pricefile: str):
     print_report(report)
 
 
-portfolio_report('../Work/Data/portfolio.csv',
-                 '../Work/Data/prices.csv')
+def main(args):
+    portfolio_report(args[1],
+                     args[2])
+
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv)

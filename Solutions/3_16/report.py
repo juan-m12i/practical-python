@@ -13,7 +13,7 @@ def read_prices(filename):
     '''
     Read a CSV file of price data into a dict mapping names to prices.
     '''
-    return dict(fileparse.parse_csv(filename,types=[str,float], has_headers=False))
+    return dict(fileparse.parse_csv(filename,types=[str, float], has_headers=False))
 
 def make_report_data(portfolio,prices):
     '''
